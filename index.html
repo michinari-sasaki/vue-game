@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://unpkg.com/vue@next"></script>
+    <link rel="stylesheet" href="../assets/scss/common.css" />
+    <link rel="stylesheet" href="../assets/scss/reset.css" />
+    <title>神経衰弱</title>
+  </head>
+  <body>
+    <div id="app">
+      <div class="field">
+        <div class="field__read inner">
+          Vue.jsで作成した神経衰弱アプリです。<br />同じギターリストを当ててね！正解数：{{complete}}/4
+          <div class="field__read__name" v-bind:class="{active: guitarist}">{{guitarist}}!! <br /></div>
+        </div>
+        <div class="field__inner inner">
+          <ul class="card_list">
+            <button v-for="card,index in cards" :key="index" v-on:click="click(index)" v-bind:disabled="isPush" v-bind:class="{active: card.active,done:card.done}">
+              <div v-bind:class="['card'+card.number]"></div>
+            </button>
+          </ul>
+          <button v-on:click="reset">リセット</button>
+          <button v-on:click="shuffle">シャッフル</button>
+        </div>
+      </div>
+    </div>
+    <script>
+      Vue.createApp({
+        data: function () {
+          return {
+            // isShow: false,
+            // isShowNumber: null,
+            complete: 0,
+            guitarist: null,
+            isPush: false,
+            cards: [
+              {
+                number: 1,
+                active: false,
+                done: false,
+                name: "Slash",
+              },
+              {
+                number: 2,
+                active: false,
+                done: false,
+                name: "Zakk Wylde",
+              },
+              {
+                number: 3,
+                active: false,
+                done: false,
+                name: "Paul Gilbert",
+              },
+              {
+                number: 4,
+                active: false,
+                done: false,
+                name: "John Frusciante",
+              },
+              {
+                number: 1,
+                active: false,
+                done: false,
+                name: "Slash",
+              },
+              {
+                number: 2,
+                active: false,
+                done: false,
+                name: "Zakk Wylde",
+              },
+              {
+                number: 3,
+                active: false,
+                done: false,
+                name: "Paul Gilbert",
+              },
+              {
+                number: 4,
+                active: false,
+                done: false,
+                name: "John Frusciante",
+              },
+            ],
+            first: [
+              {
+                content: null,
+                index: null,
+              },
+            ],
+            second: [
+              {
+                content: null,
+                index: null,
+              },
+            ],
+          };
+        },
+        methods: {
+          click: function (index) {
+            //1枚目だったら
+            if (!this.first.content) {
+              this.first.content = this.cards[index].number;
+              this.first.index = index;
+              this.cards[this.first.index].active = true;
+            } else if (this.first.index == index) {
+              //同じカードのクリックは無効
+              return;
+            } else {
+              //2枚目の処理と結果を返す関数を読み込み
+              this.second.content = this.cards[index].number;
+              this.second.index = index;
+              this.cards[this.second.index].active = true;
+              //カードの選択を一時無効化
+              this.isPush = true;
+              //選択カードが同じだったら result 関数を発火
+              if (this.first.content == this.second.content) {
+                this.guitarist = this.cards[this.first.index].name;
+              } else {
+                this.guitarist = null;
+              }
+              setTimeout(this.result, 1100);
+              setTimeout(() => {
+                this.guitarist = null;
+              }, 1800);
+            }
+          },
+          result: function () {
+            if (this.first.content == this.second.content) {
+              this.cards[this.second.index].done = true;
+              this.cards[this.first.index].done = true;
+              //リセット処理
+              this.first.content = null;
+              this.first.index = null;
+              this.second.content = null;
+              this.second.index = null;
+              this.complete += 1;
+              if (this.complete == 4) {
+                this.finishEvent();
+              }
+            } else {
+              this.cards[this.first.index].active = false;
+              this.cards[this.second.index].active = false;
+              this.first.content = null;
+              this.first.index = null;
+              this.second.content = null;
+              this.second.index = null;
+            }
+            //カードの選択を一時無効化を解除
+            this.isPush = false;
+          },
+          //シャッフル関数
+          shuffle: function () {
+            for (let i = this.cards.length - 1; 0 < i; i--) {
+              let r = Math.floor(Math.random() * (i + 1));
+              let tmp = this.cards[i];
+              this.cards[i] = this.cards[r];
+              this.cards[r] = tmp;
+            }
+            return this.cards;
+          },
+          finishEvent: function () {
+            alert("全問正解おめでとうございます！！");
+            location.reload();
+          },
+          reset: function () {
+            location.reload();
+          },
+        },
+        mounted: function () {
+          this.shuffle();
+          // this.testFunc(this.myCallback);
+        },
+      }).mount("#app");
+    </script>
+  </body>
+</html>
